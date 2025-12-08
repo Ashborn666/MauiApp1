@@ -44,7 +44,7 @@
                     <Entry Grid.Column="1"
                            Placeholder="EMAIL"
                            Text="edrian.hiraldo@utp.ac.pa"
-                           VerticalOptions="Center"
+                           VerticalOptions="Center"/>
                 </Grid>
                 <Grid Margin="0,30,0,0" ColumnDefinitions=".2*,.8*">
                             <RoundRectangle BackgroundColor="#EDEBF6"
@@ -62,12 +62,12 @@
                 Color="Green"/>
                                 </Image.Source>
                             </Image>
-                            <Entry Grid.Column="1"
+                    <Entry Grid.Column="1"
            Placeholder="PASSWORD"
            IsPassword="True"
            Text="12345"
-           VerticalOptions="Center"
-</Grid>
+           VerticalOptions="Center"/>
+                </Grid>
                                 <Button
                         Margin="0,20,0,0"
                         BackgroundColor="Green"
