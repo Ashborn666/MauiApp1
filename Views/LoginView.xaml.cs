@@ -1,9 +1,17 @@
-namespace MauiApp1.Views;
+using MauiApp1.ViewModels;
 
-public partial class LoginView : ContentPage
+namespace MauiApp1.Views
 {
-	public LoginView()
-	{
-		InitializeComponent();
-	}
+    public partial class LoginView : ContentPage
+    {
+        public LoginView()
+        {
+        }
+
+        public LoginView(LoginViewModel viewModel)
+        {
+            InitializeComponent();
+            BindingContext = viewModel;
+        }
+    }
 }

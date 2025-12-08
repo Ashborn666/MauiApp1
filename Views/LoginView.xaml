@@ -2,11 +2,13 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.Views.LoginView"
+             xmlns:viewmodels="clr-namespace:MauiApp1.ViewModels"
+             x:DataType="viewmodels:LoginViewModel"
              Title="LoginView">
 
     <Grid RowDefinitions=".3*,.7*">
         <Image Aspect="AspectFill" Source="fondofisc.jpg"/>
-        <Grid BackgroundColor="Green"  Opacity=".9"/>
+        <Grid BackgroundColor="Green" Opacity=".9"/>
         <Grid ColumnDefinitions="*,*">
             <Image Aspect="AspectFit"
                    HeightRequest="120"
@@ -43,51 +45,58 @@
                     </Image>
                     <Entry Grid.Column="1"
                            Placeholder="EMAIL"
-                           Text="edrian.hiraldo@utp.ac.pa"
+                           Text="{Binding Email}"
                            VerticalOptions="Center"/>
                 </Grid>
                 <Grid Margin="0,30,0,0" ColumnDefinitions=".2*,.8*">
-                            <RoundRectangle BackgroundColor="#EDEBF6"
-                    CornerRadius="10"
-                    HeightRequest="60"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center"
-                    WidthRequest="60"/>
-                            <Image HorizontalOptions="Center">
-                                <Image.Source>
-                                    <FontImageSource
-                FontFamily="AwesomeSolid"
-                Glyph="&#xf084;"
-                Size="44"
-                Color="Green"/>
-                                </Image.Source>
-                            </Image>
+                    <RoundRectangle BackgroundColor="#EDEBF6"
+                                    CornerRadius="10"
+                                    HeightRequest="60"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"
+                                    WidthRequest="60"/>
+                    <Image HorizontalOptions="Center">
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="AwesomeSolid"
+                                Glyph="&#xf084;"
+                                Size="44"
+                                Color="Green"/>
+                        </Image.Source>
+                    </Image>
                     <Entry Grid.Column="1"
-           Placeholder="PASSWORD"
-           IsPassword="True"
-           Text="12345"
-           VerticalOptions="Center"/>
+                           Placeholder="PASSWORD"
+                           IsPassword="True"
+                           Text="{Binding Password}"
+                           VerticalOptions="Center"/>
                 </Grid>
-                                <Button
-                        Margin="0,20,0,0"
+
+                <Button Margin="0,20,0,0"
                         BackgroundColor="Green"
                         HeightRequest="60"
                         Text="Login"
-                        TextColor="#FBFDF6"/>
+                        TextColor="#FBFDF6"
+                        Command="{Binding LoginCommand}"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"/>
 
-                                <Label Margin="0,20,0,-10"
-                           HorizontalOptions="Center"
-                           Text="Forgot your password?"
-                           TextColor="Green"
-                           TextDecorations="Underline"/>
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="Green"
+                                   Margin="0,10,0,0"/>
 
-                                <Button Margin="0,30,0,0"
-                            BackgroundColor="#FBFDF6"
-                            HeightRequest="60"
-                            Text="Create your Account"
-                            TextColor="Green"/>
+                <Label Margin="0,20,0,-10"
+                       HorizontalOptions="Center"
+                       Text="Forgot your password?"
+                       TextColor="Green"
+                       TextDecorations="Underline"/>
+
+                <Button Margin="0,30,0,0"
+                        BackgroundColor="#FBFDF6"
+                        HeightRequest="60"
+                        Text="Create your Account"
+                        TextColor="Green"
+                        Command="{Binding CreateAccountCommand}"/>
             </VerticalStackLayout>
         </Grid>
     </Grid>
-    
 </ContentPage>
