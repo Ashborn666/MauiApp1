@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using MauiApp1.Services;
 using MauiApp1.Views;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace MauiApp1.ViewModels
 {
@@ -25,7 +24,7 @@ namespace MauiApp1.ViewModels
 
         public LoginViewModel(IAuthService authService)
         {
-            _authService = authService;
+            _authService = authService ?? throw new ArgumentNullException(nameof(authService));
         }
 
         [RelayCommand]
@@ -82,13 +81,35 @@ namespace MauiApp1.ViewModels
         [RelayCommand]
         private async Task CreateAccountAsync()
         {
-            await Shell.Current.GoToAsync(nameof(RegisterView));
+            try
+            {
+                var registerViewModel = new RegisterViewModel(_authService);
+                var registerView = new RegisterView(registerViewModel);
+
+                await Application.Current.MainPage.Navigation.PushAsync(registerView);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error al navegar: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Error", "No se pudo abrir el registro", "OK");
+            }
         }
 
         [RelayCommand]
         private async Task ForgotPasswordAsync()
         {
-            await Shell.Current.GoToAsync(nameof(ForgotPasswordView));
+            try
+            {
+                var forgotViewModel = new ForgotPasswordViewModel(_authService);
+                var forgotView = new ForgotPasswordView(forgotViewModel);
+
+                await Application.Current.MainPage.Navigation.PushAsync(forgotView);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error al navegar: {ex.Message}");
+                await Application.Current.MainPage.DisplayAlert("Error", "No se pudo abrir recuperación de contraseña", "OK");
+            }
         }
     }
 }

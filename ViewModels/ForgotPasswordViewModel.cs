@@ -78,7 +78,7 @@ namespace MauiApp1.ViewModels
         [RelayCommand]
         private async Task BackToLoginAsync()
         {
-            await Shell.Current.GoToAsync("..");
+            await Application.Current.MainPage.Navigation.PopAsync();
         }
     }
 }

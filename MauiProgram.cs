@@ -1,7 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using MauiApp1.Services;
-using MauiApp1.ViewModels;
-using MauiApp1.Views;
 
 namespace MauiApp1
 {
@@ -20,22 +17,6 @@ namespace MauiApp1
                     fonts.AddFont("Lato-Regular.ttf", "medium");
                     fonts.AddFont("email.otf", "AwesomeSolid");
                 });
-
-            // Registrar servicios
-            builder.Services.AddSingleton<DatabaseService>();
-            builder.Services.AddSingleton<IAuthService, AuthService>();
-
-            // Registrar ViewModels
-            builder.Services.AddTransient<LoginViewModel>();
-            builder.Services.AddTransient<RegisterViewModel>();
-            builder.Services.AddTransient<ForgotPasswordViewModel>();
-
-            // Registrar Views
-            builder.Services.AddTransient<LoginView>();
-            builder.Services.AddTransient<RegisterView>();
-            builder.Services.AddTransient<ForgotPasswordView>();
-            builder.Services.AddTransient<MainPage>();
-            builder.Services.AddTransient<HomePage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

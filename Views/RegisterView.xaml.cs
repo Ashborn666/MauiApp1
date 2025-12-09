@@ -1,4 +1,5 @@
-using MauiApp1.ViewModels;
+﻿using MauiApp1.ViewModels;
+using System.Diagnostics;
 
 namespace MauiApp1.Views
 {
@@ -6,8 +7,23 @@ namespace MauiApp1.Views
     {
         public RegisterView(RegisterViewModel viewModel)
         {
-            InitializeComponent();
-            BindingContext = viewModel;
+            try
+            {
+                InitializeComponent();
+
+                if (viewModel == null)
+                {
+                    throw new ArgumentNullException(nameof(viewModel), "RegisterViewModel no puede ser null");
+                }
+
+                BindingContext = viewModel;
+                Debug.WriteLine("RegisterView inicializado correctamente");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"❌ Error en RegisterView constructor: {ex.Message}");
+                throw;
+            }
         }
     }
 }
