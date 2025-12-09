@@ -8,9 +8,12 @@ namespace MauiApp1
         {
             InitializeComponent();
 
-            // Registrar rutas adicionales
+            // Registrar rutas para navegación
             Routing.RegisterRoute(nameof(MainPage), typeof(MainPage));
             Routing.RegisterRoute(nameof(LoginView), typeof(LoginView));
+            Routing.RegisterRoute(nameof(RegisterView), typeof(RegisterView));
+            Routing.RegisterRoute(nameof(ForgotPasswordView), typeof(ForgotPasswordView));
+            Routing.RegisterRoute(nameof(HomePage), typeof(HomePage));
         }
     }
 }

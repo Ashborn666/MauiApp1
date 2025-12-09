@@ -2,11 +2,89 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.Views.HomePage"
-             Title="HomePage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="Home">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Spacing="10" Margin="0,20,0,30">
+            <Label Text="¡Bienvenido!"
+                   FontSize="32"
+                   FontAttributes="Bold"
+                   TextColor="Green"
+                   HorizontalOptions="Center"/>
+
+            <Label x:Name="WelcomeLabel"
+                   FontSize="18"
+                   TextColor="#666"
+                   HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+
+        <!-- Content -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="20">
+
+                <Frame BackgroundColor="#F0F0F0" 
+                       Padding="20" 
+                       CornerRadius="10"
+                       HasShadow="True">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="📧 Email:"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#2D2D2D"/>
+                        <Label x:Name="EmailLabel"
+                               FontSize="14"
+                               TextColor="#666"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Frame BackgroundColor="#F0F0F0" 
+                       Padding="20" 
+                       CornerRadius="10"
+                       HasShadow="True">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="🆔 User ID:"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#2D2D2D"/>
+                        <Label x:Name="UserIdLabel"
+                               FontSize="14"
+                               TextColor="#666"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <Frame BackgroundColor="#E8F5E9" 
+                       Padding="20" 
+                       CornerRadius="10"
+                       HasShadow="True"
+                       BorderColor="Green">
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="✅ Sesión activa"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="Green"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Has iniciado sesión correctamente"
+                               FontSize="12"
+                               TextColor="#666"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Logout Button -->
+        <Button Grid.Row="2"
+                x:Name="LogoutButton"
+                Text="Cerrar Sesión"
+                BackgroundColor="Green"
+                TextColor="White"
+                HeightRequest="50"
+                CornerRadius="10"
+                Margin="0,20,0,0"
+                Clicked="OnLogoutClicked"/>
+
+    </Grid>
 </ContentPage>

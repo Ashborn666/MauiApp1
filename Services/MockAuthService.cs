@@ -74,5 +74,15 @@ namespace MauiApp1.Services
 
             return _currentUser;
         }
+
+        public Task<LoginResponse> RegisterAsync(string name, string email, string password)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> RequestPasswordResetAsync(string email)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

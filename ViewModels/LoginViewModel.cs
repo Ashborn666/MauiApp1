@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MauiApp1.Services;
+using MauiApp1.Views;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -11,10 +12,10 @@ namespace MauiApp1.ViewModels
         private readonly IAuthService _authService;
 
         [ObservableProperty]
-        private string email = "edrian.hiraldo@utp.ac.pa";
+        private string email = "";
 
         [ObservableProperty]
-        private string password = "12345";
+        private string password = "";
 
         [ObservableProperty]
         private bool isBusy;
@@ -46,7 +47,6 @@ namespace MauiApp1.ViewModels
 
                 if (response.IsSuccess)
                 {
-                    // Cambiar la MainPage a AppShell
                     await MainThread.InvokeOnMainThreadAsync(() =>
                     {
                         Application.Current.MainPage = new AppShell();
@@ -82,13 +82,13 @@ namespace MauiApp1.ViewModels
         [RelayCommand]
         private async Task CreateAccountAsync()
         {
-            await Application.Current.MainPage.DisplayAlert("Crear Cuenta", "Funcionalidad en desarrollo", "OK");
+            await Shell.Current.GoToAsync(nameof(RegisterView));
         }
 
         [RelayCommand]
         private async Task ForgotPasswordAsync()
         {
-            await Application.Current.MainPage.DisplayAlert("Recuperar Contraseña", "Funcionalidad en desarrollo", "OK");
+            await Shell.Current.GoToAsync(nameof(ForgotPasswordView));
         }
     }
 }

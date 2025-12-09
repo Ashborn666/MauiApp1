@@ -16,7 +16,6 @@ namespace MauiApp1.Services
         {
             try
             {
-                // Validaciones básicas
                 if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
                 {
                     return new LoginResponse
@@ -26,7 +25,6 @@ namespace MauiApp1.Services
                     };
                 }
 
-                // Buscar usuario en la base de datos
                 var user = await _databaseService.GetUserByEmailAsync(email);
 
                 if (user == null)
@@ -38,7 +36,6 @@ namespace MauiApp1.Services
                     };
                 }
 
-                // Verificar contraseña
                 if (!_databaseService.VerifyPassword(password, user.PasswordHash))
                 {
                     return new LoginResponse
@@ -48,12 +45,11 @@ namespace MauiApp1.Services
                     };
                 }
 
-                // Login exitoso
                 _currentUser = user;
 
-                // Guardar datos de sesión
                 await SecureStorage.SetAsync("user_id", user.Id.ToString());
                 await SecureStorage.SetAsync("user_email", user.Email);
+                await SecureStorage.SetAsync("user_name", user.FullName);
 
                 return new LoginResponse
                 {
@@ -72,6 +68,73 @@ namespace MauiApp1.Services
             }
         }
 
+        public async Task<LoginResponse> RegisterAsync(string name, string email, string password)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+                {
+                    return new LoginResponse
+                    {
+                        IsSuccess = false,
+                        Message = "Todos los campos son requeridos"
+                    };
+                }
+
+                if (password.Length < 5)
+                {
+                    return new LoginResponse
+                    {
+                        IsSuccess = false,
+                        Message = "La contraseña debe tener al menos 5 caracteres"
+                    };
+                }
+
+                bool success = await _databaseService.CreateUserAsync(name, email, password);
+
+                if (success)
+                {
+                    return new LoginResponse
+                    {
+                        IsSuccess = true,
+                        Message = "Cuenta creada exitosamente"
+                    };
+                }
+
+                return new LoginResponse
+                {
+                    IsSuccess = false,
+                    Message = "Error al crear la cuenta"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new LoginResponse
+                {
+                    IsSuccess = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<string> RequestPasswordResetAsync(string email)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(email))
+                {
+                    throw new Exception("El email es requerido");
+                }
+
+                string token = await _databaseService.CreatePasswordResetTokenAsync(email);
+                return token;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al solicitar recuperación: {ex.Message}");
+            }
+        }
+
         public async Task<bool> LogoutAsync()
         {
             try
@@ -79,6 +142,7 @@ namespace MauiApp1.Services
                 _currentUser = null;
                 SecureStorage.Remove("user_id");
                 SecureStorage.Remove("user_email");
+                SecureStorage.Remove("user_name");
                 return await Task.FromResult(true);
             }
             catch

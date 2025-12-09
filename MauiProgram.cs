@@ -26,11 +26,16 @@ namespace MauiApp1
             builder.Services.AddSingleton<IAuthService, AuthService>();
 
             // Registrar ViewModels
-            builder.Services.AddSingleton<LoginViewModel>();
+            builder.Services.AddTransient<LoginViewModel>();
+            builder.Services.AddTransient<RegisterViewModel>();
+            builder.Services.AddTransient<ForgotPasswordViewModel>();
 
             // Registrar Views
-            builder.Services.AddSingleton<LoginView>();
-            builder.Services.AddSingleton<MainPage>();
+            builder.Services.AddTransient<LoginView>();
+            builder.Services.AddTransient<RegisterView>();
+            builder.Services.AddTransient<ForgotPasswordView>();
+            builder.Services.AddTransient<MainPage>();
+            builder.Services.AddTransient<HomePage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

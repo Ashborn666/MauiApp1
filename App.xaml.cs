@@ -11,25 +11,22 @@ namespace MauiApp1
         {
             InitializeComponent();
 
+            // PRUEBA DE CONEXIÓN - Comentar después de probar
+            Task.Run(async () => await TestConnection.TestMySqlConnection());
             try
             {
-                // USAR MOCK SERVICE PARA PRUEBAS (sin base de datos)
-                var authService = new MockAuthService();
+                // Obtener servicios del contenedor DI
+                var authService = Handler.MauiContext.Services.GetService<IAuthService>();
+                var loginViewModel = Handler.MauiContext.Services.GetService<LoginViewModel>();
+                var loginView = Handler.MauiContext.Services.GetService<LoginView>();
 
-                // Para usar la base de datos real, descomentar estas líneas:
-                // var databaseService = new DatabaseService();
-                // var authService = new AuthService(databaseService);
-
-                var loginViewModel = new LoginViewModel(authService);
-                var loginView = new LoginView(loginViewModel);
-                MainPage = loginView;
+                MainPage = new NavigationPage(loginView);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error al inicializar la app: {ex.Message}");
                 Debug.WriteLine($"StackTrace: {ex.StackTrace}");
 
-                // Mostrar una página de error
                 MainPage = new ContentPage
                 {
                     Content = new VerticalStackLayout
