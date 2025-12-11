@@ -47,10 +47,11 @@ namespace MauiApp1.Services
 
                 _currentUser = user;
 
-                // Guardar datos en SecureStorage
+                // Guardar en SecureStorage
                 await SecureStorage.SetAsync("user_id", user.Id.ToString());
                 await SecureStorage.SetAsync("user_email", user.Email);
                 await SecureStorage.SetAsync("user_name", user.Name);
+                await SecureStorage.SetAsync("user_role", user.Roles.FirstOrDefault()?.Name ?? "user");
 
                 return new LoginResponse
                 {
@@ -66,24 +67,6 @@ namespace MauiApp1.Services
                     IsSuccess = false,
                     Message = $"Error al iniciar sesión: {ex.Message}"
                 };
-            }
-        }
-
-        // ✨ NUEVO — Implementación requerida por IAuthService
-        public async Task<bool> UpdateUserRoleAsync(int userId, string newRole)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(newRole))
-                    throw new Exception("El rol no puede estar vacío");
-
-                // Por ahora no usamos BD real para roles
-                // Solo devolvemos éxito automático
-                return await Task.FromResult(true);
-            }
-            catch
-            {
-                return false;
             }
         }
 
@@ -146,6 +129,50 @@ namespace MauiApp1.Services
             return await _databaseService.CreatePasswordResetTokenAsync(email);
         }
 
+        public async Task<bool> UpdateUserRoleAsync(int userId, string newRole)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(newRole))
+                    throw new Exception("El rol no puede estar vacío");
+
+                bool success = await _databaseService.UpdateUserRoleAsync(userId, newRole);
+
+                // Si el usuario actual es el que cambió de rol, actualizar SecureStorage
+                if (_currentUser != null && _currentUser.Id == userId && success)
+                {
+                    _currentUser.Roles.Clear();
+                    _currentUser.Roles.Add(new Role
+                    {
+                        Id = newRole == "admin" ? 2 : 1,
+                        Name = newRole
+                    });
+
+                    await SecureStorage.SetAsync("user_role", newRole);
+                }
+
+                return success;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error al actualizar rol: {ex.Message}");
+                return false;
+            }
+        }
+
+        public List<User> GetAllMockUsers()
+        {
+            // Para MySQL real, obtener de la base de datos
+            try
+            {
+                return _databaseService.GetAllUsersAsync().GetAwaiter().GetResult();
+            }
+            catch
+            {
+                return new List<User>();
+            }
+        }
+
         public async Task<bool> LogoutAsync()
         {
             try
@@ -155,6 +182,7 @@ namespace MauiApp1.Services
                 SecureStorage.Remove("user_id");
                 SecureStorage.Remove("user_email");
                 SecureStorage.Remove("user_name");
+                SecureStorage.Remove("user_role");
 
                 return true;
             }
@@ -168,11 +196,6 @@ namespace MauiApp1.Services
         {
             var userId = await SecureStorage.GetAsync("user_id");
             return !string.IsNullOrEmpty(userId);
-        }
-
-        public List<User> GetAllMockUsers()
-        {
-            return new List<User>(); // Vacía porque AuthService real todavía no usa DB
         }
 
         public async Task<User> GetCurrentUserAsync()

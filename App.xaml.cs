@@ -8,7 +8,9 @@ namespace MauiApp1
         {
             InitializeComponent();
 
-            // La página principal SIEMPRE se obtiene desde DI
+            // 🔥 PRUEBA DE CONEXIÓN (temporal)
+            Task.Run(async () => await TestConnection.TestMySqlConnection());
+
             MainPage = new NavigationPage(loginView);
         }
     }

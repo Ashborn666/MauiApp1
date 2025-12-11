@@ -18,17 +18,18 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        // AUTH SERVICE COMO SINGLETON (CORRECTO)
-        builder.Services.AddSingleton<IAuthService, MockAuthService>();
+        // ✅ USAR MYSQL REAL
+        builder.Services.AddSingleton<DatabaseService>();
+        builder.Services.AddSingleton<IAuthService, AuthService>();
 
-        // VIEWS QUE SE RECREAN CADA VEZ QUE SE ABREN
+        // VIEWS
         builder.Services.AddTransient<LoginView>();
         builder.Services.AddTransient<RegisterView>();
         builder.Services.AddTransient<ForgotPasswordView>();
-        builder.Services.AddTransient<HomePage>();           // TRANSIENT!
-        builder.Services.AddTransient<UsersListView>();       // TRANSIENT!
+        builder.Services.AddTransient<HomePage>();
+        builder.Services.AddTransient<UsersListView>();
 
-        // VIEWMODELS TAMBIÉN TRANSIENT
+        // VIEWMODELS
         builder.Services.AddTransient<LoginViewModel>();
         builder.Services.AddTransient<RegisterViewModel>();
         builder.Services.AddTransient<ForgotPasswordViewModel>();
