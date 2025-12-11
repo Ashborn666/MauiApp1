@@ -1,11 +1,24 @@
-namespace MauiApp1.Models;
+using System.Data;
 
-public class User
+namespace MauiApp1.Models
 {
-    public int Id { get; set; }
-    public string Email { get; set; }
-    public string PasswordHash { get; set; }
-    public string FullName { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public bool IsActive { get; set; }
+    public class User
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; } = string.Empty;
+
+        public string Email { get; set; } = string.Empty;
+
+        public string PasswordHash { get; set; } = string.Empty;
+
+        public bool IsActive { get; set; } = true;
+
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+
+        // Relación muchos a muchos
+        public List<Role> Roles { get; set; } = new();
+    }
 }

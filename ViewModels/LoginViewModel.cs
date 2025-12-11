@@ -49,6 +49,7 @@ namespace MauiApp1.ViewModels
                     await MainThread.InvokeOnMainThreadAsync(() =>
                     {
                         Application.Current.MainPage = new AppShell();
+                        Shell.Current.GoToAsync("//HomePage");
                     });
                 }
                 else

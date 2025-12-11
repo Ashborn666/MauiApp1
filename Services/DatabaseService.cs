@@ -39,7 +39,7 @@ namespace MauiApp1.Services
                     var user = new User
                     {
                         Id = reader.GetInt32(0),
-                        FullName = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                        Name = reader.IsDBNull(1) ? "" : reader.GetString(1),
                         Email = reader.GetString(2),
                         PasswordHash = reader.GetString(3),
                         CreatedAt = reader.GetDateTime(4),
@@ -104,6 +104,40 @@ namespace MauiApp1.Services
                 throw;
             }
         }
+
+        public async Task<bool> UpdateUserRoleAsync(int userId, string newRole)
+        {
+            try
+            {
+                using var connection = new MySqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                // Eliminar roles anteriores
+                string deleteQuery = "DELETE FROM user_roles WHERE user_id = @UserId";
+                using var deleteCmd = new MySqlCommand(deleteQuery, connection);
+                deleteCmd.Parameters.AddWithValue("@UserId", userId);
+                await deleteCmd.ExecuteNonQueryAsync();
+
+                // Insertar nuevo rol
+                string insertQuery = @"INSERT INTO user_roles (user_id, role_id, assigned_at)
+                               VALUES (@UserId, 
+                                      (SELECT id FROM roles WHERE name = @Role LIMIT 1),
+                                      NOW())";
+
+                using var insertCmd = new MySqlCommand(insertQuery, connection);
+                insertCmd.Parameters.AddWithValue("@UserId", userId);
+                insertCmd.Parameters.AddWithValue("@Role", newRole);
+
+                var result = await insertCmd.ExecuteNonQueryAsync();
+                return result > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al actualizar rol: {ex.Message}");
+                return false;
+            }
+        }
+
 
         public async Task<string> CreatePasswordResetTokenAsync(string email)
         {

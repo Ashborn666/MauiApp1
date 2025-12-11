@@ -47,9 +47,10 @@ namespace MauiApp1.Services
 
                 _currentUser = user;
 
+                // Guardar datos en SecureStorage
                 await SecureStorage.SetAsync("user_id", user.Id.ToString());
                 await SecureStorage.SetAsync("user_email", user.Email);
-                await SecureStorage.SetAsync("user_name", user.FullName);
+                await SecureStorage.SetAsync("user_name", user.Name);
 
                 return new LoginResponse
                 {
@@ -68,11 +69,31 @@ namespace MauiApp1.Services
             }
         }
 
+        // ✨ NUEVO — Implementación requerida por IAuthService
+        public async Task<bool> UpdateUserRoleAsync(int userId, string newRole)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(newRole))
+                    throw new Exception("El rol no puede estar vacío");
+
+                // Por ahora no usamos BD real para roles
+                // Solo devolvemos éxito automático
+                return await Task.FromResult(true);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public async Task<LoginResponse> RegisterAsync(string name, string email, string password)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+                if (string.IsNullOrWhiteSpace(name) ||
+                    string.IsNullOrWhiteSpace(email) ||
+                    string.IsNullOrWhiteSpace(password))
                 {
                     return new LoginResponse
                     {
@@ -119,20 +140,10 @@ namespace MauiApp1.Services
 
         public async Task<string> RequestPasswordResetAsync(string email)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(email))
-                {
-                    throw new Exception("El email es requerido");
-                }
+            if (string.IsNullOrWhiteSpace(email))
+                throw new Exception("El email es requerido");
 
-                string token = await _databaseService.CreatePasswordResetTokenAsync(email);
-                return token;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error al solicitar recuperación: {ex.Message}");
-            }
+            return await _databaseService.CreatePasswordResetTokenAsync(email);
         }
 
         public async Task<bool> LogoutAsync()
@@ -140,10 +151,12 @@ namespace MauiApp1.Services
             try
             {
                 _currentUser = null;
+
                 SecureStorage.Remove("user_id");
                 SecureStorage.Remove("user_email");
                 SecureStorage.Remove("user_name");
-                return await Task.FromResult(true);
+
+                return true;
             }
             catch
             {
@@ -157,12 +170,18 @@ namespace MauiApp1.Services
             return !string.IsNullOrEmpty(userId);
         }
 
+        public List<User> GetAllMockUsers()
+        {
+            return new List<User>(); // Vacía porque AuthService real todavía no usa DB
+        }
+
         public async Task<User> GetCurrentUserAsync()
         {
             if (_currentUser != null)
                 return _currentUser;
 
             var email = await SecureStorage.GetAsync("user_email");
+
             if (!string.IsNullOrEmpty(email))
             {
                 _currentUser = await _databaseService.GetUserByEmailAsync(email);

@@ -6,7 +6,7 @@
 
     <Grid RowDefinitions="Auto,*,Auto" Padding="20">
 
-        <!-- Header -->
+        <!-- HEADER -->
         <VerticalStackLayout Grid.Row="0" Spacing="10" Margin="0,20,0,30">
             <Label Text="¡Bienvenido!"
                    FontSize="32"
@@ -20,14 +20,12 @@
                    HorizontalOptions="Center"/>
         </VerticalStackLayout>
 
-        <!-- Content -->
+        <!-- CONTENT -->
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Spacing="20">
 
-                <Frame BackgroundColor="#F0F0F0" 
-                       Padding="20" 
-                       CornerRadius="10"
-                       HasShadow="True">
+                <!-- EMAIL -->
+                <Frame BackgroundColor="#F0F0F0" Padding="20" CornerRadius="10" HasShadow="True">
                     <VerticalStackLayout Spacing="10">
                         <Label Text="📧 Email:"
                                FontSize="16"
@@ -39,10 +37,8 @@
                     </VerticalStackLayout>
                 </Frame>
 
-                <Frame BackgroundColor="#F0F0F0" 
-                       Padding="20" 
-                       CornerRadius="10"
-                       HasShadow="True">
+                <!-- USER ID -->
+                <Frame BackgroundColor="#F0F0F0" Padding="20" CornerRadius="10" HasShadow="True">
                     <VerticalStackLayout Spacing="10">
                         <Label Text="🆔 User ID:"
                                FontSize="16"
@@ -54,8 +50,50 @@
                     </VerticalStackLayout>
                 </Frame>
 
-                <Frame BackgroundColor="#E8F5E9" 
-                       Padding="20" 
+                <!-- USER ROLE -->
+                <Frame BackgroundColor="#E3F2FD"
+                       Padding="20"
+                       CornerRadius="10"
+                       HasShadow="True"
+                       BorderColor="#2196F3">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="🔐 Rol Actual:"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#0D47A1"/>
+
+                        <Label x:Name="RoleLabel"
+                               FontSize="14"
+                               TextColor="#555"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- ⭐⭐⭐ PANEL EXCLUSIVO DE ADMIN ⭐⭐⭐ -->
+                <Frame x:Name="AdminPanel"
+                       IsVisible="False"
+                       BackgroundColor="#FFF3E0"
+                       Padding="20"
+                       CornerRadius="10"
+                       HasShadow="True"
+                       BorderColor="#FB8C00">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="⚙ Panel Administrativo"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="#E65100"
+                               HorizontalOptions="Center"/>
+
+                        <Button Text="📋 Ver lista de usuarios"
+                                BackgroundColor="#FB8C00"
+                                TextColor="White"
+                                CornerRadius="10"
+                                Clicked="OnOpenUsersList"/>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- SESSION INFO -->
+                <Frame BackgroundColor="#E8F5E9"
+                       Padding="20"
                        CornerRadius="10"
                        HasShadow="True"
                        BorderColor="Green">
@@ -75,7 +113,7 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <!-- Logout Button -->
+        <!-- LOGOUT BUTTON -->
         <Button Grid.Row="2"
                 x:Name="LogoutButton"
                 Text="Cerrar Sesión"

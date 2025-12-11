@@ -8,345 +8,234 @@ namespace MauiApp1.Services
     {
         private User _currentUser;
 
-        // Lista de usuarios simulados (como si vinieran de la BD)
-        private static List<User> _mockUsers = new List<User>
+        // Lista persistente en memoria
+        private static List<User> _mockUsers = new()
         {
             new User
             {
                 Id = 1,
+                Name = "Edrian Hiraldo",
                 Email = "edrian.hiraldo@utp.ac.pa",
-                FullName = "Edrian Hiraldo",
                 PasswordHash = HashPassword("12345"),
-                CreatedAt = DateTime.Now.AddMonths(-6),
-                IsActive = true
+                IsActive = true,
+                Roles = new List<Role> { new Role { Id = 1, Name = "user" } }
             },
             new User
             {
                 Id = 2,
-                Email = "admin@utp.ac.pa",
-                FullName = "Administrador UTP",
+                Name = "David Guerra",
+                Email = "david.guerra@utp.ac.pa",
                 PasswordHash = HashPassword("admin123"),
-                CreatedAt = DateTime.Now.AddYears(-1),
-                IsActive = true
+                IsActive = true,
+                Roles = new List<Role> { new Role { Id = 2, Name = "admin" } }
             },
             new User
             {
                 Id = 3,
-                Email = "maria.gonzalez@utp.ac.pa",
-                FullName = "María González",
-                PasswordHash = HashPassword("pass123"),
-                CreatedAt = DateTime.Now.AddMonths(-3),
-                IsActive = true
+                Name = "Ryan Navarro",
+                Email = "ryan.navarro@utp.ac.pa",
+                PasswordHash = HashPassword("clave123"),
+                IsActive = true,
+                Roles = new List<Role> { new Role { Id = 1, Name = "user" } }
             },
-            new User
-            {
-                Id = 4,
-                Email = "juan.perez@utp.ac.pa",
-                FullName = "Juan Pérez",
-                PasswordHash = HashPassword("qwerty"),
-                CreatedAt = DateTime.Now.AddMonths(-2),
-                IsActive = true
-            },
-            new User
-            {
-                Id = 5,
-                Email = "test@test.com",
-                FullName = "Usuario de Prueba",
-                PasswordHash = HashPassword("test"),
-                CreatedAt = DateTime.Now.AddDays(-10),
-                IsActive = true
-            }
         };
 
-        // Diccionario para tokens de recuperación
-        private static Dictionary<string, (string Email, DateTime ExpiresAt)> _resetTokens = new Dictionary<string, (string, DateTime)>();
-
+        // -----------------------
+        // LOGIN
+        // -----------------------
         public async Task<LoginResponse> LoginAsync(string email, string password)
         {
-            await Task.Delay(800); // Simular delay de red
+            await Task.Delay(200);
 
-            try
+            // SIEMPRE limpiar antes de logear
+            SecureStorage.Remove("user_id");
+            SecureStorage.Remove("user_email");
+            SecureStorage.Remove("user_name");
+            SecureStorage.Remove("user_role");
+
+            var user = _mockUsers.FirstOrDefault(u =>
+                u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+
+            if (user == null)
+                return new LoginResponse { IsSuccess = false, Message = "Usuario no encontrado" };
+
+            if (!VerifyPassword(password, user.PasswordHash))
+                return new LoginResponse { IsSuccess = false, Message = "Contraseña incorrecta" };
+
+            // Guardar usuario actual
+            _currentUser = user;
+
+            // Guardar datos EN ORDEN
+            await SecureStorage.SetAsync("user_id", user.Id.ToString());
+            await SecureStorage.SetAsync("user_email", user.Email);
+            await SecureStorage.SetAsync("user_name", user.Name);
+            await SecureStorage.SetAsync("user_role", user.Roles.First().Name);
+
+            return new LoginResponse
             {
-                // Buscar usuario por email
-                var user = _mockUsers.FirstOrDefault(u =>
-                    u.Email.Equals(email, StringComparison.OrdinalIgnoreCase) &&
-                    u.IsActive);
-
-                if (user == null)
-                {
-                    return new LoginResponse
-                    {
-                        IsSuccess = false,
-                        Message = "Usuario no encontrado"
-                    };
-                }
-
-                // Verificar contraseña
-                if (!VerifyPassword(password, user.PasswordHash))
-                {
-                    return new LoginResponse
-                    {
-                        IsSuccess = false,
-                        Message = "Contraseña incorrecta"
-                    };
-                }
-
-                // Login exitoso
-                _currentUser = user;
-
-                // Guardar en SecureStorage
-                await SecureStorage.SetAsync("user_id", user.Id.ToString());
-                await SecureStorage.SetAsync("user_email", user.Email);
-                await SecureStorage.SetAsync("user_name", user.FullName);
-
-                return new LoginResponse
-                {
-                    IsSuccess = true,
-                    Message = "Login exitoso",
-                    User = user
-                };
-            }
-            catch (Exception ex)
-            {
-                return new LoginResponse
-                {
-                    IsSuccess = false,
-                    Message = $"Error: {ex.Message}"
-                };
-            }
+                IsSuccess = true,
+                Message = "Login exitoso",
+                User = user
+            };
         }
 
-        public async Task<LoginResponse> RegisterAsync(string name, string email, string password)
+        public static void ResetSecureStorage()
         {
-            await Task.Delay(800); // Simular delay de red
-
-            try
-            {
-                // Validaciones
-                if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
-                {
-                    return new LoginResponse
-                    {
-                        IsSuccess = false,
-                        Message = "Todos los campos son requeridos"
-                    };
-                }
-
-                if (password.Length < 5)
-                {
-                    return new LoginResponse
-                    {
-                        IsSuccess = false,
-                        Message = "La contraseña debe tener al menos 5 caracteres"
-                    };
-                }
-
-                // Verificar si el email ya existe
-                if (_mockUsers.Any(u => u.Email.Equals(email, StringComparison.OrdinalIgnoreCase)))
-                {
-                    return new LoginResponse
-                    {
-                        IsSuccess = false,
-                        Message = "El email ya está registrado"
-                    };
-                }
-
-                // Crear nuevo usuario
-                var newUser = new User
-                {
-                    Id = _mockUsers.Count > 0 ? _mockUsers.Max(u => u.Id) + 1 : 1,
-                    Email = email,
-                    FullName = name,
-                    PasswordHash = HashPassword(password),
-                    CreatedAt = DateTime.Now,
-                    IsActive = true
-                };
-
-                // Agregar a la lista
-                _mockUsers.Add(newUser);
-
-                return new LoginResponse
-                {
-                    IsSuccess = true,
-                    Message = "Usuario registrado exitosamente",
-                    User = newUser
-                };
-            }
-            catch (Exception ex)
-            {
-                return new LoginResponse
-                {
-                    IsSuccess = false,
-                    Message = $"Error al registrar: {ex.Message}"
-                };
-            }
+            SecureStorage.Remove("user_id");
+            SecureStorage.Remove("user_email");
+            SecureStorage.Remove("user_name");
+            SecureStorage.Remove("user_role");
         }
 
-        public async Task<string> RequestPasswordResetAsync(string email)
+        // -----------------------
+        // CAMBIO DE ROL
+        // -----------------------
+        public async Task<bool> UpdateUserRoleAsync(int userId, string newRole)
         {
-            await Task.Delay(500); // Simular delay de red
+            var user = _mockUsers.FirstOrDefault(u => u.Id == userId);
+            if (user == null)
+                return false;
 
-            try
+            // 🟦 1) Contar cuántos admins hay actualmente
+            int adminCount = _mockUsers.Count(u => u.Roles.Any(r => r.Name == "admin"));
+
+            bool userIsAdmin = user.Roles.Any(r => r.Name == "admin");
+
+            // 🟥 2) Si el cambio es ADMIN → USER y este usuario es el ÚLTIMO admin → NO PERMITIR
+            if (newRole == "user" && userIsAdmin && adminCount == 1)
             {
-                // Verificar que el usuario existe
-                var user = _mockUsers.FirstOrDefault(u =>
-                    u.Email.Equals(email, StringComparison.OrdinalIgnoreCase) &&
-                    u.IsActive);
-
-                if (user == null)
-                {
-                    throw new Exception("Usuario no encontrado");
-                }
-
-                // Generar token único
-                string token = GenerateResetToken();
-
-                // Guardar token con fecha de expiración (1 hora)
-                _resetTokens[token] = (email, DateTime.Now.AddHours(1));
-
-                // Limpiar tokens expirados
-                CleanExpiredTokens();
-
-                return token;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Error al solicitar recuperación: {ex.Message}");
-            }
-        }
-
-        public async Task<bool> LogoutAsync()
-        {
-            try
-            {
-                _currentUser = null;
-                SecureStorage.Remove("user_id");
-                SecureStorage.Remove("user_email");
-                SecureStorage.Remove("user_name");
-                return await Task.FromResult(true);
-            }
-            catch
-            {
+                // No se puede dejar el sistema sin admins
                 return false;
             }
-        }
 
-        public async Task<bool> IsAuthenticatedAsync()
-        {
-            var userId = await SecureStorage.GetAsync("user_id");
-            return !string.IsNullOrEmpty(userId);
-        }
-
-        public async Task<User> GetCurrentUserAsync()
-        {
-            if (_currentUser != null)
-                return _currentUser;
-
-            var email = await SecureStorage.GetAsync("user_email");
-            if (!string.IsNullOrEmpty(email))
+            // 🟩 3) Aplicar cambio de rol
+            user.Roles.Clear();
+            user.Roles.Add(new Role
             {
-                // Buscar usuario por email en la lista
-                _currentUser = _mockUsers.FirstOrDefault(u =>
-                    u.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+                Id = newRole == "admin" ? 2 : 1,
+                Name = newRole
+            });
+
+            // 🟦 4) Actualizar también al usuario actual si es el que está logeado
+            if (_currentUser != null && _currentUser.Id == userId)
+            {
+                _currentUser.Roles.Clear();
+                _currentUser.Roles.Add(new Role
+                {
+                    Id = newRole == "admin" ? 2 : 1,
+                    Name = newRole
+                });
+
+                await SecureStorage.SetAsync("user_role", newRole);
             }
 
+            return true;
+        }
+
+        // -----------------------
+        // OBTENER USUARIO ACTUAL
+        // -----------------------
+        public async Task<User> GetCurrentUserAsync()
+        {
+            var email = await SecureStorage.GetAsync("user_email");
+            if (email == null)
+                return null;
+
+            _currentUser = _mockUsers.FirstOrDefault(u => u.Email == email);
             return _currentUser;
         }
 
-        // Método público para obtener todos los usuarios (útil para debugging)
+        // -----------------------
+        // OBTENER LISTA DE USUARIOS
+        // -----------------------
         public List<User> GetAllMockUsers()
         {
-            return _mockUsers.Select(u => new User
-            {
-                Id = u.Id,
-                Email = u.Email,
-                FullName = u.FullName,
-                CreatedAt = u.CreatedAt,
-                IsActive = u.IsActive
-                // NO retornamos el PasswordHash por seguridad
-            }).ToList();
+            return _mockUsers;
         }
 
-        // Método para verificar si un token de reset es válido
-        public bool VerifyResetToken(string token)
+        // -----------------------
+        // REGISTER (obligatorio por la interfaz)
+        // -----------------------
+        public async Task<LoginResponse> RegisterAsync(string name, string email, string password)
         {
-            if (_resetTokens.TryGetValue(token, out var tokenInfo))
+            await Task.Delay(150);
+
+            if (_mockUsers.Any(u => u.Email == email))
+                return new LoginResponse { IsSuccess = false, Message = "El usuario ya existe" };
+
+            var newUser = new User
             {
-                return tokenInfo.ExpiresAt > DateTime.Now;
-            }
-            return false;
+                Id = _mockUsers.Max(u => u.Id) + 1,
+                Name = name,
+                Email = email,
+                PasswordHash = HashPassword(password),
+                IsActive = true,
+                Roles = new List<Role> { new Role { Id = 1, Name = "user" } }
+            };
+
+            _mockUsers.Add(newUser);
+
+            return new LoginResponse
+            {
+                IsSuccess = true,
+                Message = "Usuario registrado correctamente",
+                User = newUser
+            };
         }
 
-        // Método para resetear contraseña con token
-        public async Task<bool> ResetPasswordAsync(string token, string newPassword)
+        // -----------------------
+        // OLVIDÉ MI CONTRASEÑA
+        // -----------------------
+        public async Task<string> RequestPasswordResetAsync(string email)
         {
-            await Task.Delay(500);
+            await Task.Delay(150);
 
-            if (!_resetTokens.TryGetValue(token, out var tokenInfo))
-            {
-                return false;
-            }
+            var user = _mockUsers.FirstOrDefault(u => u.Email == email);
 
-            if (tokenInfo.ExpiresAt <= DateTime.Now)
-            {
-                _resetTokens.Remove(token);
-                return false;
-            }
+            if (user == null)
+                throw new Exception("Usuario no encontrado");
 
-            var user = _mockUsers.FirstOrDefault(u =>
-                u.Email.Equals(tokenInfo.Email, StringComparison.OrdinalIgnoreCase));
-
-            if (user != null)
-            {
-                user.PasswordHash = HashPassword(newPassword);
-                _resetTokens.Remove(token);
-                return true;
-            }
-
-            return false;
+            return "MOCK-TOKEN-1234";
         }
 
-        #region Métodos auxiliares privados
+        // -----------------------
+        // LOGOUT
+        // -----------------------
+        public async Task<bool> LogoutAsync()
+        {
+            _currentUser = null;
 
+            SecureStorage.Remove("user_id");
+            SecureStorage.Remove("user_email");
+            SecureStorage.Remove("user_name");
+            SecureStorage.Remove("user_role");
+
+            return await Task.FromResult(true);
+        }
+
+        // -----------------------
+        // AUTENTICADO
+        // -----------------------
+        public async Task<bool> IsAuthenticatedAsync()
+        {
+            var id = await SecureStorage.GetAsync("user_id");
+            return id != null;
+        }
+
+        // -----------------------
+        // HELPERS
+        // -----------------------
         private static string HashPassword(string password)
         {
             using var sha256 = SHA256.Create();
-            byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(bytes);
+            return Convert.ToBase64String(
+                sha256.ComputeHash(Encoding.UTF8.GetBytes(password))
+            );
         }
 
-        private bool VerifyPassword(string password, string passwordHash)
+        private bool VerifyPassword(string password, string hash)
         {
-            return HashPassword(password) == passwordHash;
+            return HashPassword(password) == hash;
         }
-
-        private string GenerateResetToken()
-        {
-            byte[] randomBytes = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(randomBytes);
-            }
-            return Convert.ToBase64String(randomBytes)
-                .Replace("+", "-")
-                .Replace("/", "_")
-                .Replace("=", "")
-                .Substring(0, 32); // Token de 32 caracteres
-        }
-
-        private void CleanExpiredTokens()
-        {
-            var expiredTokens = _resetTokens
-                .Where(t => t.Value.ExpiresAt <= DateTime.Now)
-                .Select(t => t.Key)
-                .ToList();
-
-            foreach (var token in expiredTokens)
-            {
-                _resetTokens.Remove(token);
-            }
-        }
-
-        #endregion
     }
 }

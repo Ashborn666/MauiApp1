@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiApp1.Views.UsersListView"
+             Title="Usuarios">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <Label Text="Lista de usuarios"
+                   FontSize="26"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="#333"/>
+
+            <CollectionView x:Name="UsersCollectionView">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Padding="15"
+                               Margin="0,10"
+                               BackgroundColor="#F7F7F7"
+                               CornerRadius="15"
+                               HasShadow="True">
+
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+
+                                <!-- NOMBRE -->
+                                <Label Text="{Binding Name}"
+                                       Grid.Column="0"
+                                       FontSize="18"
+                                       FontAttributes="Bold"/>
+
+                                <!-- ROL -->
+                                <Label Text="{Binding Roles[0].Name}"
+                                       Grid.Column="1"
+                                       FontSize="14"
+                                       TextColor="#0077CC"
+                                       VerticalOptions="Center"/>
+
+                                <!-- EMAIL -->
+                                <Label Text="{Binding Email}"
+                                       Grid.ColumnSpan="2"
+                                       Grid.Row="1"
+                                       FontSize="13"
+                                       TextColor="#666"/>
+
+                                <!-- BOTÓN CAMBIAR ROL -->
+                                <Button Text="{Binding RoleButtonLabel}"
+                                        Grid.ColumnSpan="2"
+                                        Grid.Row="2"
+                                        Margin="0,10,0,0"
+                                        CornerRadius="10"
+                                        BackgroundColor="{Binding RoleButtonColor}"
+                                        TextColor="White"
+                                        Command="{Binding ChangeRoleCommand}"/>
+
+                            </Grid>
+
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

@@ -1,4 +1,4 @@
-using MauiApp1.Services;
+Ôªøusing MauiApp1.Services;
 
 namespace MauiApp1.Views
 {
@@ -9,7 +9,7 @@ namespace MauiApp1.Views
         public HomePage()
         {
             InitializeComponent();
-            _authService = Handler.MauiContext?.Services.GetService<IAuthService>();
+            _authService = ServiceHelper.GetService<IAuthService>();
             LoadUserInfo();
         }
 
@@ -17,50 +17,62 @@ namespace MauiApp1.Views
         {
             try
             {
-                if (_authService != null)
+                var user = await _authService.GetCurrentUserAsync();
+
+                if (user != null)
                 {
-                    var user = await _authService.GetCurrentUserAsync();
+                    WelcomeLabel.Text = user.Name;
+                    EmailLabel.Text = user.Email;
+                    UserIdLabel.Text = user.Id.ToString();
 
-                    if (user != null)
-                    {
-                        WelcomeLabel.Text = $"{user.FullName}";
-                        EmailLabel.Text = user.Email;
-                        UserIdLabel.Text = user.Id.ToString();
-                    }
-                    else
-                    {
-                        // Si no hay usuario, mostrar datos de SecureStorage
-                        var userName = await SecureStorage.GetAsync("user_name");
-                        var userEmail = await SecureStorage.GetAsync("user_email");
-                        var userId = await SecureStorage.GetAsync("user_id");
+                    // ‚≠ê Mostrar rol actual
+                    string role = user.Roles.FirstOrDefault()?.Name ?? "user";
+                    RoleLabel.Text = role;
 
-                        WelcomeLabel.Text = userName ?? "Usuario";
-                        EmailLabel.Text = userEmail ?? "No disponible";
-                        UserIdLabel.Text = userId ?? "No disponible";
-                    }
+                    // ‚≠ê Mostrar panel admin solo si el rol es admin
+                    AdminPanel.IsVisible = role == "admin";
+                }
+                else
+                {
+                    // Datos desde SecureStorage si algo falla
+                    var userName = await SecureStorage.GetAsync("user_name");
+                    var userEmail = await SecureStorage.GetAsync("user_email");
+                    var userId = await SecureStorage.GetAsync("user_id");
+
+                    WelcomeLabel.Text = userName ?? "Usuario";
+                    EmailLabel.Text = userEmail ?? "No disponible";
+                    UserIdLabel.Text = userId ?? "No disponible";
+                    RoleLabel.Text = "user";
+
+                    AdminPanel.IsVisible = false;
                 }
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Error al cargar informaciÛn: {ex.Message}", "OK");
+                await DisplayAlert("Error", $"Error al cargar informaci√≥n: {ex.Message}", "OK");
             }
+        }
+
+        // ‚≠ê BOT√ìN PARA ABRIR LA LISTA DE USUARIOS SOLO SI ES ADMIN
+        private async void OnOpenUsersList(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new UsersListView());
         }
 
         private async void OnLogoutClicked(object sender, EventArgs e)
         {
-            bool confirm = await DisplayAlert("Cerrar SesiÛn", "øEst·s seguro de que deseas cerrar sesiÛn?", "SÌ", "No");
+            bool confirm = await DisplayAlert(
+                "Cerrar Sesi√≥n",
+                "¬øSeguro que deseas cerrar sesi√≥n?",
+                "S√≠", "No");
 
-            if (confirm)
-            {
-                if (_authService != null)
-                {
-                    await _authService.LogoutAsync();
-                }
+            if (!confirm)
+                return;
 
-                Application.Current.MainPage = new NavigationPage(
-                    Handler.MauiContext?.Services.GetService<LoginView>()
-                );
-            }
+            await _authService.LogoutAsync();
+
+            var loginPage = ServiceHelper.GetService<LoginView>();
+            Application.Current.MainPage = new NavigationPage(loginPage);
         }
     }
 }

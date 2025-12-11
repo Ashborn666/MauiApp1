@@ -40,43 +40,37 @@ namespace MauiApp1.ViewModels
                 IsBusy = true;
                 ErrorMessage = string.Empty;
 
-                Debug.WriteLine($"Intentando crear cuenta con: {Name} - {Email}");
-
+                // Registrar usuario
                 var response = await _authService.RegisterAsync(Name, Email, Password);
 
-                Debug.WriteLine($"Respuesta del registro: {response.IsSuccess} - {response.Message}");
-
-                if (response.IsSuccess)
-                {
-                    await Application.Current.MainPage.DisplayAlert("Éxito", "Cuenta creada exitosamente. Ahora puedes iniciar sesión.", "OK");
-
-                    // Intentar login automático
-                    var loginResponse = await _authService.LoginAsync(Email, Password);
-
-                    if (loginResponse.IsSuccess)
-                    {
-                        await MainThread.InvokeOnMainThreadAsync(() =>
-                        {
-                            Application.Current.MainPage = new AppShell();
-                        });
-                    }
-                    else
-                    {
-                        // Regresar al login
-                        await Application.Current.MainPage.Navigation.PopAsync();
-                    }
-                }
-                else
+                if (!response.IsSuccess)
                 {
                     ErrorMessage = response.Message;
                     await Application.Current.MainPage.DisplayAlert("Error", response.Message, "OK");
+                    return;
+                }
+
+                // Login automático después de registrar
+                var loginResponse = await _authService.LoginAsync(Email, Password);
+
+                if (loginResponse.IsSuccess)
+                {
+                    // Ir directamente al AppShell como en login normal
+                    Application.Current.MainPage = new AppShell();
+                    Shell.Current.GoToAsync("//HomePage");
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert("Error", loginResponse.Message, "OK");
+
+                    // Regresar al login si algo falla
+                    await Application.Current.MainPage.Navigation.PopAsync();
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error en CreateAccountAsync: {ex.Message}");
-                ErrorMessage = $"Error: {ex.Message}";
-                await Application.Current.MainPage.DisplayAlert("Error", $"Ocurrió un error: {ex.Message}", "OK");
+                ErrorMessage = ex.Message;
+                await Application.Current.MainPage.DisplayAlert("Error", ex.Message, "OK");
             }
             finally
             {

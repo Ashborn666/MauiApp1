@@ -30,6 +30,15 @@
                 SemanticProperties.Hint="Counts the number of times you click"
                 Clicked="OnCounterClicked"
                 HorizontalOptions="Fill" />
+
+            <!-- 🔥 BOTÓN DE LOGOUT -->
+            <Button
+                Text="Cerrar sesión"
+                HorizontalOptions="Fill"
+                BackgroundColor="Red"
+                TextColor="White"
+                Clicked="OnLogoutClicked" />
+
         </VerticalStackLayout>
     </ScrollView>
 

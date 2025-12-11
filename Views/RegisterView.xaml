@@ -2,128 +2,117 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.Views.RegisterView"
-             Title="RegisterView">
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="White">
 
-    <Grid RowDefinitions=".3*,.7*">
-        <!-- Header con fondo -->
-        <Image Aspect="AspectFill" Source="fondofisc.jpg"/>
-        <Grid BackgroundColor="Green" Opacity=".9"/>
-        <Grid ColumnDefinitions="*,*">
-            <Image Aspect="AspectFit"
-                   HeightRequest="120"
-                   Source="logofisc.png"/>
+    <Grid RowDefinitions="260,*">
+
+        <!-- 🟢 ENCABEZADO CON GRADIENTE (IGUAL AL LOGIN) -->
+        <Grid Grid.Row="0">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#0A8A2A" Offset="0.0" />
+                    <GradientStop Color="#0F9B30" Offset="1.0" />
+                </LinearGradientBrush>
+            </Grid.Background>
+
+            <VerticalStackLayout VerticalOptions="Center"
+                                 HorizontalOptions="Center">
+                <Image Source="logofisc.png"
+                       HeightRequest="110"
+                       Aspect="AspectFit" />
+                <Label Text="Crear Cuenta"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       HorizontalOptions="Center"
+                       Margin="0,10,0,0"/>
+            </VerticalStackLayout>
         </Grid>
 
-        <!-- Contenido principal -->
-        <Grid Grid.Row="1">
-            <RoundRectangle Margin="-5,-30,-5,-2"
-                            CornerRadius="30,30,0,0"
-                            Fill="White"/>
+
+        <!-- 🟡 CONTENEDOR PRINCIPAL (IGUAL AL LOGIN MODERNO) -->
+        <Border Grid.Row="1"
+                StrokeThickness="0"
+                BackgroundColor="White"
+                StrokeShape="RoundRectangle 30,30,0,0"
+                Padding="30,25,30,0">
+
             <ScrollView>
-                <VerticalStackLayout Margin="30,0,30,0">
-                    <Label FontAttributes="Bold"
-                           FontFamily="bold"
-                           FontSize="Medium"
-                           Text="Create Account"
-                           TextColor="#2D2D2D"/>
-                    <Label FontFamily="medium"
-                           Text="Sign up to get started"
-                           TextColor="#A3A3A4"/>
+                <VerticalStackLayout Spacing="25">
 
-                    <!-- Name Input -->
-                    <Grid Margin="0,30,0,0" ColumnDefinitions=".2*,.8*">
-                        <RoundRectangle BackgroundColor="#EDEBF6"
-                                        CornerRadius="10"
-                                        HeightRequest="60"
-                                        HorizontalOptions="Center"
-                                        VerticalOptions="Center"
-                                        WidthRequest="60"/>
-                        <Image HorizontalOptions="Center">
-                            <Image.Source>
-                                <FontImageSource
-                                    FontFamily="AwesomeSolid"
-                                    Glyph="&#xf007;"
-                                    Size="44"
-                                    Color="Green"/>
-                            </Image.Source>
-                        </Image>
-                        <Entry Grid.Column="1"
-                               Placeholder="FULL NAME"
+                    <Label Text="Regístrate 👋"
+                           FontSize="18"
+                           TextColor="#444"
+                           HorizontalOptions="Center"/>
+
+                    <!-- 🟢 NOMBRE -->
+                    <VerticalStackLayout>
+                        <Label Text="Nombre completo"
+                               FontSize="14"
+                               TextColor="#666"/>
+                        <Entry Placeholder="Introduce tu nombre"
                                Text="{Binding Name}"
-                               VerticalOptions="Center"/>
-                    </Grid>
+                               FontSize="16"
+                               BackgroundColor="Transparent"
+                               TextColor="Black"/>
+                    </VerticalStackLayout>
 
-                    <!-- Email Input -->
-                    <Grid Margin="0,20,0,0" ColumnDefinitions=".2*,.8*">
-                        <RoundRectangle BackgroundColor="#EDEBF6"
-                                        CornerRadius="10"
-                                        HeightRequest="60"
-                                        HorizontalOptions="Center"
-                                        VerticalOptions="Center"
-                                        WidthRequest="60"/>
-                        <Image HorizontalOptions="Center">
-                            <Image.Source>
-                                <FontImageSource
-                                    FontFamily="AwesomeSolid"
-                                    Glyph="&#xf0e0;"
-                                    Size="44"
-                                    Color="Green"/>
-                            </Image.Source>
-                        </Image>
-                        <Entry Grid.Column="1"
-                               Placeholder="EMAIL"
-                               Keyboard="Email"
+                    <!-- 🟢 EMAIL -->
+                    <VerticalStackLayout>
+                        <Label Text="Correo electrónico"
+                               FontSize="14"
+                               TextColor="#666"/>
+                        <Entry Placeholder="email@ejemplo.com"
                                Text="{Binding Email}"
-                               VerticalOptions="Center"/>
-                    </Grid>
+                               Keyboard="Email"
+                               FontSize="16"
+                               BackgroundColor="Transparent"
+                               TextColor="Black"/>
+                    </VerticalStackLayout>
 
-                    <!-- Password Input -->
-                    <Grid Margin="0,20,0,0" ColumnDefinitions=".2*,.8*">
-                        <RoundRectangle BackgroundColor="#EDEBF6"
-                                        CornerRadius="10"
-                                        HeightRequest="60"
-                                        HorizontalOptions="Center"
-                                        VerticalOptions="Center"
-                                        WidthRequest="60"/>
-                        <Image HorizontalOptions="Center">
-                            <Image.Source>
-                                <FontImageSource
-                                    FontFamily="AwesomeSolid"
-                                    Glyph="&#xf084;"
-                                    Size="44"
-                                    Color="Green"/>
-                            </Image.Source>
-                        </Image>
-                        <Entry Grid.Column="1"
-                               Placeholder="PASSWORD"
+                    <!-- 🟢 PASSWORD -->
+                    <VerticalStackLayout>
+                        <Label Text="Contraseña"
+                               FontSize="14"
+                               TextColor="#666"/>
+                        <Entry Placeholder="********"
                                IsPassword="True"
                                Text="{Binding Password}"
-                               VerticalOptions="Center"/>
-                    </Grid>
+                               FontSize="16"
+                               BackgroundColor="Transparent"
+                               TextColor="Black"/>
+                    </VerticalStackLayout>
 
-                    <!-- Botón Create Account -->
-                    <Button Margin="0,30,0,0"
-                            BackgroundColor="Green"
-                            HeightRequest="60"
-                            Text="Create Account"
-                            TextColor="#FBFDF6"
-                            Command="{Binding CreateAccountCommand}"/>
 
-                    <!-- Indicador de carga -->
+                    <!-- 🟩 BOTÓN CREAR CUENTA -->
+                    <Button Text="Crear Cuenta"
+                            HeightRequest="55"
+                            CornerRadius="12"
+                            FontSize="18"
+                            TextColor="White"
+                            BackgroundColor="#0A8A2A"
+                            Command="{Binding CreateAccountCommand}" />
+
+                    <!-- Loader -->
                     <ActivityIndicator IsRunning="{Binding IsBusy}"
                                        IsVisible="{Binding IsBusy}"
-                                       Color="Green"
-                                       Margin="0,10,0,0"/>
+                                       Color="#0A8A2A"/>
 
-                    <!-- Botón Back to Login -->
-                    <Button Margin="0,20,0,30"
-                            BackgroundColor="#FBFDF6"
-                            HeightRequest="60"
-                            Text="Back to Login"
-                            TextColor="Green"
-                            Command="{Binding BackToLoginCommand}"/>
+                    <!-- 🔙 Volver al login -->
+                    <Button Text="Volver al inicio"
+                            HeightRequest="55"
+                            CornerRadius="12"
+                            BackgroundColor="#E8F5E9"
+                            TextColor="#0A8A2A"
+                            FontSize="17"
+                            Command="{Binding BackToLoginCommand}" />
+
                 </VerticalStackLayout>
             </ScrollView>
-        </Grid>
+
+        </Border>
+
     </Grid>
+
 </ContentPage>
